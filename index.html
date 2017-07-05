@@ -10,14 +10,14 @@
       <div class="right">
         <div id="login">
           <h2>Login</h2>
-          <button>Login</button>
+          <button v-on:click="login" >Login</button>
         </div>
       </div>
       <div class="main">
         <div>
           <h2>Previous Jeets <small>(Count: {{ jeets.length || "Loading..." }})</small></h2>
           <div id="previousjeets">
-            <li v-for="jeet in jeets">{{ jeet.text }}</li>
+            <li v-for="jeet in jeets"><b>{{ jeet.displayName }}</b>:{{ jeet.text }}</li>
           </div>
           <div id="newjeet">
             <label for="jeet">Jeet your thoughts!</label>
@@ -36,23 +36,57 @@
         storageBucket: "<BUCKET>.appspot.com",
         messagingSenderId: "<SENDER_ID>",
       };
-      
       const firebaseApp = firebase.initializeApp(config);
+
+      // Authentication stuff
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.addScope('https://www.googleapis.com/auth/userinfo.profile')
+
       const db = firebaseApp.database()
       const app = new Vue({
         el: '#app',
         data: {
-          jeet: ''
+          jeet: '',
+          user: {
+            name: '',
+            uid: null
+          }
         },
         firebase: {
           jeets: db.ref('jeets')
         },
         methods: {
           addJeet() {
-            this.$firebaseRefs.jeets.push({
-              text: this.jeet
-            })
+            if (this.user.uid) {
+              this.$firebaseRefs.jeets.push({
+                text: this.jeet,
+                displayName: this.user.name
+              })
+            } else {
+              alert('Oops, you are not logged in!')
+            }
             this.jeet = ''
+          },
+          login() {
+            firebaseApp.auth().signInWithPopup(provider).then(function(result) {
+              // This gives you a Google Access Token. You can use it to access the Google API.
+              var token = result.credential.accessToken
+              // The signed-in user info.
+              var user = result.user
+              console.log(user)
+              app.user.uid = user.uid
+              app.user.name = user.displayName
+            }).catch(function(error) {
+              // Handle Errors here.
+              var errorCode = error.code;
+              var errorMessage = error.message;
+              // The email of the user's account used.
+              var email = error.email;
+              // The firebase.auth.AuthCredential type that was used.
+              var credential = error.credential;
+              // ...
+              console.log(error)
+            });
           }
         }
       })
