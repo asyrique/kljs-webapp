@@ -1,30 +1,36 @@
 <html>
   <head>
     <title>KLJS Jitter</title>
+    <script src="https://unpkg.com/vue@2.3.4" integrity="sha384-SWYACiYUou7FEXJmLPVnJyiZ4jtvL48VREXH38hHwQXMv+tt0I96VhwBEHiS9Kq2" crossorigin="anonymous"></script>
   </head>
   <body>
-    <div class="right">
-      <div id="login">
-        <h2>Login</h2>
-        <button>Login</button>
-      </div>
-    </div>
-    <div class="main">
-      <div>
-        <h1>Previous Jeets</h1>
-        <div id="previousjeets">
+    <div id="app">
+      <div class="right">
+        <div id="login">
+          <h2>Login</h2>
+          <button>Login</button>
         </div>
-        <div id="newjeet">
-          <label for="jeet">Jeet your thoughts!</label>
-          <input type="text" id="jeet">
-          <button id="submitjeet">Submit</button>
+      </div>
+      <div class="main">
+        <div>
+          <h2>Previous Jeets <small>(Count: {{count}})</small></h2>
+          <div id="previousjeets">
+          </div>
+          <div id="newjeet">
+            <label for="jeet">Jeet your thoughts!</label>
+            <input type="text" id="jeet">
+            <button id="submitjeet" v-on:click="count += 1">Submit</button>
+          </div>
         </div>
       </div>
     </div>
     <script type="application/javascript">
-      document.querySelector('#submitjeet').onclick = function() {
-        alert(document.querySelector('#jeet').value)
-      }
+      const app = new Vue({
+        el: '#app',
+        data: {
+          count: 0
+        }
+      })
     </script>
   </body>
 </html>
