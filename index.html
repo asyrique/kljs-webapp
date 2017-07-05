@@ -2,6 +2,8 @@
   <head>
     <title>KLJS Jitter</title>
     <script src="https://unpkg.com/vue@2.3.4" integrity="sha384-SWYACiYUou7FEXJmLPVnJyiZ4jtvL48VREXH38hHwQXMv+tt0I96VhwBEHiS9Kq2" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.1.3/firebase.js"></script>
+    <script src="https://unpkg.com/vuefire/dist/vuefire.js"></script>
   </head>
   <body>
     <div id="app">
@@ -13,22 +15,45 @@
       </div>
       <div class="main">
         <div>
-          <h2>Previous Jeets <small>(Count: {{count}})</small></h2>
+          <h2>Previous Jeets <small>(Count: {{ jeets.length || "Loading..." }})</small></h2>
           <div id="previousjeets">
+            <li v-for="jeet in jeets">{{ jeet.text }}</li>
           </div>
           <div id="newjeet">
             <label for="jeet">Jeet your thoughts!</label>
-            <input type="text" id="jeet">
-            <button id="submitjeet" v-on:click="count += 1">Submit</button>
+            <input type="text" v-model="jeet" id="jeet">
+            <button id="submitjeet" v-on:click="addJeet">Submit</button>
           </div>
         </div>
       </div>
     </div>
     <script type="application/javascript">
+      // Initialize Firebase
+      var config = {
+        apiKey: "<API_KEY>",
+        authDomain: "<PROJECT_ID>.firebaseapp.com",
+        databaseURL: "https://<DATABASE_NAME>.firebaseio.com",
+        storageBucket: "<BUCKET>.appspot.com",
+        messagingSenderId: "<SENDER_ID>",
+      };
+      
+      const firebaseApp = firebase.initializeApp(config);
+      const db = firebaseApp.database()
       const app = new Vue({
         el: '#app',
         data: {
-          count: 0
+          jeet: ''
+        },
+        firebase: {
+          jeets: db.ref('jeets')
+        },
+        methods: {
+          addJeet() {
+            this.$firebaseRefs.jeets.push({
+              text: this.jeet
+            })
+            this.jeet = ''
+          }
         }
       })
     </script>
