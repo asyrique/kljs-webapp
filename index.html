@@ -17,7 +17,7 @@
         <div>
           <h2>Previous Jeets <small>(Count: {{ jeets.length || "Loading..." }})</small></h2>
           <div id="previousjeets">
-            <li v-for="jeet in jeets"><b>{{ jeet.displayName }}</b>:{{ jeet.text }}</li>
+            <li v-for="jeet in jeets"><b>{{ jeet.displayName }}</b>:{{ jeet.text }} at {{ago(jeet.createdAt)}} </li>
           </div>
           <div id="newjeet">
             <label for="jeet">Jeet your thoughts!</label>
@@ -29,13 +29,42 @@
     </div>
     <script type="application/javascript">
       // Initialize Firebase
-      var config = {
-        apiKey: "<API_KEY>",
-        authDomain: "<PROJECT_ID>.firebaseapp.com",
-        databaseURL: "https://<DATABASE_NAME>.firebaseio.com",
-        storageBucket: "<BUCKET>.appspot.com",
-        messagingSenderId: "<SENDER_ID>",
-      };
+      // var config = {
+      //   apiKey: "<API_KEY>",
+      //   authDomain: "<PROJECT_ID>.firebaseapp.com",
+      //   databaseURL: "https://<DATABASE_NAME>.firebaseio.com",
+      //   storageBucket: "<BUCKET>.appspot.com",
+      //   messagingSenderId: "<SENDER_ID>",
+      // };
+      // https://stackoverflow.com/questions/3177836/how-to-format-time-since-xxx-e-g-4-minutes-ago-similar-to-stack-exchange-site
+      function timeSince(date) {
+
+        var seconds = Math.floor((new Date() - date) / 1000);
+
+        var interval = Math.floor(seconds / 31536000);
+
+        if (interval > 1) {
+          return interval + " years";
+        }
+        interval = Math.floor(seconds / 2592000);
+        if (interval > 1) {
+          return interval + " months";
+        }
+        interval = Math.floor(seconds / 86400);
+        if (interval > 1) {
+          return interval + " days";
+        }
+        interval = Math.floor(seconds / 3600);
+        if (interval > 1) {
+          return interval + " hours";
+        }
+        interval = Math.floor(seconds / 60);
+        if (interval > 1) {
+          return interval + " minutes";
+        }
+        return Math.floor(seconds) + " seconds";
+      }
+
       const firebaseApp = firebase.initializeApp(config);
 
       // Authentication stuff
@@ -60,12 +89,17 @@
             if (this.user.uid) {
               this.$firebaseRefs.jeets.push({
                 text: this.jeet,
-                displayName: this.user.name
+                displayName: this.user.name,
+                createdAt: new Date().toString(),
+                uid: this.user.uid
               })
             } else {
               alert('Oops, you are not logged in!')
             }
             this.jeet = ''
+          },
+          ago(date) {
+            return timeSince(new Date(date))
           },
           login() {
             firebaseApp.auth().signInWithPopup(provider).then(function(result) {
